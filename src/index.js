@@ -7,7 +7,7 @@ import App from "./App";
 
 const rootElement = document.getElementById("root");
 
-// console.log("GET CONTEXT HERE");
+console.log("GET CONTEXT HERE ???");
 // getContext(["idf-api"], context => {
 //   console.log("CONTEXT: ", context);
 // });
