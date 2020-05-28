@@ -1,0 +1,14 @@
+{
+  "name": "IDF Templates",
+  "description": "Manage IDF Templates and rules",
+  "version": 1,
+  "versionName": "1.0.0",
+  "license": "MIT",
+  "homepage": "https://fv343.csb.app/templates",
+  "icons": [],
+  "tags": ["templates"],
+  "categories": ["templates"],
+  "whatsnew": [""],
+  "contexts": ["idf-api"],
+  "size": { "width": 637, "height": 545 }
+}
