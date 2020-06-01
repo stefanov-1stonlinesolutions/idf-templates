@@ -12,6 +12,9 @@ function getContexts() {
       result[ctx_name] = context[ctx_name];
     } else throw new Error(`Can't find context: ${ctx_name}`);
   }
+  callback && callback(result);
+  context = null;
+  callback = null;
 }
 
 export default function getContext(contexts, cb) {
