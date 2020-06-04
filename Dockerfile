@@ -33,7 +33,7 @@ FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html
 
 COPY --from=build-stage /usr/src/app/build /usr/share/nginx/html
-COPY --from=build-stage /usr/src/app/index.html /usr/share/nginx/html/index.html
+# COPY --from=build-stage /usr/src/app/index.html /usr/share/nginx/html/index.html
 COPY --from=build-stage /usr/src/app/manifest.json /usr/share/nginx/html/manifest.json
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx/nginx.conf /etc/nginx/conf.d
