@@ -1,8 +1,8 @@
 {
   "name": "IDF Templates",
   "description": "Manage IDF Templates and rules",
-  "version": 1,
-  "versionName": "1.0.0",
+  "version": 2,
+  "versionName": "1.0.1",
   "license": "MIT",
   "homepage": "https://fv343.csb.app/templates",
   "repository": "git@github.com:stefanov-1stonlinesolutions/idf-templates.git",

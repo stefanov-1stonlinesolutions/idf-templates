@@ -32,9 +32,9 @@ export default connect(
 
 	const [self_class, setSelfClass] = useState([])
 
-	const {refered, refering} = related_classes
+	const [secondary_condition_data, setSecondaryConditionData] = useState({})
 
-	console.log("debug: SELF_CLASS", self_class)
+	const {refered, refering} = related_classes
 
 	const show_finish = (secondary_condition !== null )
 
@@ -48,7 +48,7 @@ export default connect(
 	const rule_data = {
 		type, 
 		class_id: condition,
-		secondary_condition: {}, // secondary_condition,
+		condition: secondary_condition_data, // secondary_condition,
 		source_object_id: selected_object_id
 	}
 
@@ -112,7 +112,6 @@ export default connect(
 				<br/>
 				Select Refered Class
 				<select value={condition} onChange={ ({target: {value}}) => {
-					console.log("debug: ", value)
 					setCondition(parseInt(value))
 					getSecondaryConditionOptions(parseInt(value))
 				}}>
@@ -138,7 +137,28 @@ export default connect(
 
 
 	}
-	{secondary_condition && <h2>Secondary Condition fields here</h2>}
+	{ secondary_condition && Object.keys(secondary_condition).map( idd_name => {
+		const options = secondary_condition[idd_name]
+
+		return <Fragment  key={"secondary-condition-field-"+idd_name}>
+			<br />
+			<label>
+				{ idd_name }
+				<select
+					onChange={ e => setSecondaryConditionData( {...secondary_condition_data, [idd_name]: e.target.value} ) } 
+					value={secondary_condition_data.hasOwnProperty(idd_name) ? secondary_condition_data[idd_name] : null}>
+					{ options.map( value => {
+						return <option key={"secondary-condition-field-"+idd_name + "-" + value} value={value }>
+							{value}
+						</option>
+					})}
+				</select>
+			</label>
+
+		</Fragment>
+
+
+	}) }
 	</Fragment>
 
 })

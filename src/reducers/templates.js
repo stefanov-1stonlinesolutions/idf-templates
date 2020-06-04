@@ -14,6 +14,14 @@ const SELECT_CLASS 		  = "SELECT_CLASS"
 const SET_RELATED_CLASSES = "SET_RELATED_CLASSES"
 const SET_LIBRARY_OBJECTS = "SET_LIBRARY_OBJECTS"
 const SET_SECONDARY_CONDITION = "SET_SECONDARY_CONDITION"
+const DELETE_IDF_TEMPLATE = "DELETE_IDF_TEMPLATE"
+
+
+const SET_SOURCE_OBJECTS = "SET_SOURCE_OBJECTS"
+const SET_TEMPLATE_RULES = "SET_TEMPLATE_RULES"
+const DELETE_RULE = "DELETE_RULE"
+const UPDATE_TEMPLATE_RULE = "UPDATE_TEMPLATE_RULE"
+
 
 export async function fetchTemplates(idf_version){
 
@@ -35,6 +43,13 @@ export async function createNewTemplate(template_name, version_id){
 	})
 }
 
+export async function saveTemplateRule(rule){
+	store().dispatch({
+		type: UPDATE_TEMPLATE_RULE,
+		rule: await api.updateRule(rule)
+	})
+}
+
 export async function setTemplate(id){
 	store().dispatch({ type: SET_TEMPLATE, id })
 
@@ -43,13 +58,64 @@ export async function setTemplate(id){
 		classes: await api.getClasses(id)
 	})
 
+	getRules()
+
+	// const rules = (await api.getRules(id))
+
+	// const object_ids = rules.map( ({source_object_id}) => source_object_id )
+
+	// if(object_ids.length){
+	// 	const obj_index = {}
+	// 	const idf_objects = api.getObjectsByIds(object_ids)
+	// 	idf_objects.forEach( obj => {
+	// 		obj_index[obj.id] = obj
+	// 	})
+
+
+	// }
+
+	// console.log("debug: object_ids", object_ids)
+
+	// store().dispatch({
+	// 	type: SET_TEMPLATE_RULES,
+	// 	classes: rules
+	// })
+
+}
+
+export async function duplicateTemplate(template_id){
+	store().dispatch({
+		type: ADD_IDF_TEMPLATE,
+		template: await api.duplicateTemplate(template_id)
+	})
+}
+
+export async function deleteTemplate(template_id){
+	store().dispatch({
+		type: DELETE_IDF_TEMPLATE,
+		...(await api.deleteTemplate(template_id))
+	})
 }
 
 export function setClass(selected_class){
 	store().dispatch({type: SELECT_CLASS, selected_class})
+
+	const class_rules = store().getState().templates.rules
+
+	console.log("debug: SELECT_CLASS", selected_class)
+
+	// store().dispatch({
+	// 	type: SET_CLASS_RULES,
+	// 	selected_class
+	// })
+
+	// store().dispatch({
+	// 	type: SET_SOURCE_OBJECTS,
+	// 	selected_class
+	// })
 }
 
-export async function getRules(idd_class){
+export async function getRules(){
 	const template_id = store().getState().templates.selected
 	store().dispatch({
 		type: SET_RULES,
@@ -92,6 +158,14 @@ export async function createTemplateRule(rule_data){
 	const template_id = store().getState().templates.selected
 	rule_data.template_id = template_id;
 	await api.createTemplateRule(template_id, rule_data)
+}
+
+export async function deleteRule(rule_id){
+	const template_id = store().getState().templates.selected
+	store().dispatch({
+		type: DELETE_RULE,
+		...(await api.deleteRule(template_id, rule_id))
+	})
 }
 
 
@@ -144,6 +218,13 @@ export default ( state = {
 
 		case ADD_IDF_TEMPLATE:
 			return { ...state, templates: state.templates.concat([action.template]), classes: {}, rules: [] }
+
+		case DELETE_IDF_TEMPLATE:
+			return { ...state, templates: state.templates.filter( template => template.id !== action.deleted ) }
+
+		case DELETE_RULE:
+			console.log("debug: action DELETE_RULE", action)
+			return {...state, rules: state.rules.filter( ({id})=>id !== action.deleted )}
 
 		case SET_IDD_CLASSES:
 			const groups = {}

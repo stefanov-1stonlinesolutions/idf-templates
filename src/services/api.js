@@ -16,7 +16,7 @@ export default {
   getLibrary:   async idf_version => (await request(`/libraries/${idf_version}`) ).data.data,
   createTemplate: async data      => (await request.post(`/templates`, data) ).data.data,
   getClasses:   async template_id => (await request(`/templates/${template_id}/class-list`) ).data.data,
-  getRules: async template_id     => (await request(`templates/${template_id}/rules`) ).data.data,
+  getRules:     async template_id     => (await request(`templates/${template_id}/rules`) ).data.data,
   getObjects: async ids           => (await request(`templates/${ids}/rules`) ).data.data,
   getRelatedClasses: async (class_name, template_id) => (await request(`/templates/${template_id}/get-refs/${class_name}`) ).data.data,
   
@@ -25,6 +25,22 @@ export default {
   getSecondaryCondition: async (class_name, template_id) => (await request(`/templates/${template_id}/secondary-condition/${class_name}`)).data.data,
 
 
-  createTemplateRule: async (template_id, rule_data) => ( await request.post(`/templates/${template_id}/rules`, rule_data) )
-  // getRules: template_id => request(`/templates/${template_id}/rules`)
+  createTemplateRule: async (template_id, rule_data) => ( await request.post(`/templates/${template_id}/rules`, rule_data) ),
+
+
+
+  duplicateTemplate: async (template_id) => (await request.post(`/templates/${template_id}/duplicate`)).data.data,
+
+  deleteTemplate: async (template_id) => (await request.delete(`/templates/${template_id}`)).data,
+
+
+
+  getObjectsByIds: async (library_id, ids) => (await request.post(`/idf-documents/${library_id}/get-objects-by-id`, {ids})).data.data,
+
+
+  deleteRule: async (template_id, rule_id) => ( await request.delete(`/templates/${template_id}/rules/${rule_id}`) ).data,
+
+  updateRule: async rule => ( await request.put(`/templates/${rule.template_id}/rules/${rule.id}`, rule) ).data.data,
+
+
 };
