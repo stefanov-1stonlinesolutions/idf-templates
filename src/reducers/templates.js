@@ -1,4 +1,5 @@
 import api   from "../services/api"
+import { setMessage } from "./messages"
 
 // import {fetchClasses} from "./library"
 
@@ -12,7 +13,7 @@ const SET_IDD_CLASSES     = "SET_IDD_CLASSES"
 const SET_RULES           = "SET_RULES"
 const SELECT_CLASS 		  = "SELECT_CLASS"
 const SET_RELATED_CLASSES = "SET_RELATED_CLASSES"
-const SET_LIBRARY_OBJECTS = "SET_LIBRARY_OBJECTS"
+// const SET_LIBRARY_OBJECTS = "SET_LIBRARY_OBJECTS"
 const SET_SECONDARY_CONDITION = "SET_SECONDARY_CONDITION"
 const DELETE_IDF_TEMPLATE = "DELETE_IDF_TEMPLATE"
 
@@ -21,26 +22,32 @@ const SET_SOURCE_OBJECTS = "SET_SOURCE_OBJECTS"
 const SET_TEMPLATE_RULES = "SET_TEMPLATE_RULES"
 const DELETE_RULE = "DELETE_RULE"
 const UPDATE_TEMPLATE_RULE = "UPDATE_TEMPLATE_RULE"
+const SET_RULES_OBJECTS = "SET_RULES_OBJECTS"
+
+const ADD_RULE = "ADD_RULE"
 
 
 export async function fetchTemplates(idf_version){
 
-	store().dispatch({type: FETCH_IDF_TEMPLATES})
+	setMessage("Loadin IDF Templates")
 
 	store().dispatch({
 		type: SET_IDF_TEMPLATES,
 		templates: await api.getTemplates(idf_version)
 	})
+	
 
 }
 
 export async function createNewTemplate(template_name, version_id){
+	const template = await api.createTemplate({
+		template_name, version_id
+	})
 	store().dispatch({
 		type: ADD_IDF_TEMPLATE,
-		template: await api.createTemplate({
-			template_name, version_id
-		})
+		template
 	})
+	return template
 }
 
 export async function saveTemplateRule(rule){
@@ -117,18 +124,43 @@ export function setClass(selected_class){
 
 export async function getRules(){
 	const template_id = store().getState().templates.selected
+	store().dispatch({type: SET_RULES, rules: [] }) // Reset rules before get them
+	const rules = await api.getRules(template_id)
 	store().dispatch({
 		type: SET_RULES,
-		rules: await api.getRules(template_id)
+		rules
 	})
+	return rules
 }
 
-export async function getRelatedClasses({class_name}){
+export async function getRulesObjects(){
 	const template_id = store().getState().templates.selected
-	store().dispatch({
-		type: SET_RELATED_CLASSES,
-		related_classes: await api.getRelatedClasses(class_name, template_id)
+	const library = store().getState().library.library
+	const rules = store().getState().templates.rules
+	const object_ids = rules.map( ({source_object_id}) => source_object_id )
+
+	if(!object_ids.length) return store().dispatch({
+		type: SET_RULES_OBJECTS,
+		objects: {}
 	})
+
+	const idf_objects = await api.getObjectsByIds(library.id, object_ids)
+
+	const obj_index = {}
+	for(let obj of idf_objects) obj_index[obj.id] = obj
+	store().dispatch({
+		type: SET_RULES_OBJECTS,
+		objects: obj_index
+	})
+
+	// store().dispatch({type: SET_RULES, rules: [] }) // Reset rules before get them
+	// const rules = await api.getRules(template_id)
+	// return rules
+}
+
+export async function getRelatedClasses(class_name){
+	const template_id = store().getState().templates.selected
+	return await api.getRelatedClasses(class_name, template_id)
 }
 
 export async function getSecondaryCondition(class_name){
@@ -145,19 +177,23 @@ export async function getSecondaryCondition(class_name){
 	})
 }
 
-export async function getLibraryObjects({class_name}){
-	const { library } = store().getState().library
-	store().dispatch({
-		type: SET_LIBRARY_OBJECTS,
-		idf_objects: await api.getLibraryObjects(library.id, class_name)
-	})
+// export async function getLibraryObjects({class_name}){
+// 	const { library } = store().getState().library
+// 	store().dispatch({
+// 		type: SET_LIBRARY_OBJECTS,
+// 		idf_objects: await api.getLibraryObjects(library.id, class_name)
+// 	})
 
-}
+// }
 
 export async function createTemplateRule(rule_data){
 	const template_id = store().getState().templates.selected
 	rule_data.template_id = template_id;
-	await api.createTemplateRule(template_id, rule_data)
+	store().dispatch({
+		type: ADD_RULE,
+		rule: await api.createTemplateRule(template_id, rule_data)
+	})
+	
 }
 
 export async function deleteRule(rule_id){
@@ -167,6 +203,13 @@ export async function deleteRule(rule_id){
 		...(await api.deleteRule(template_id, rule_id))
 	})
 }
+
+// export function addBlankRule(rule){
+// 	store().dispatch({
+// 		type: ADD_BLANK_RULE,
+// 		rule
+// 	})
+// }
 
 
 
@@ -179,10 +222,14 @@ export default ( state = {
 	selected_class: null,
 	related_classes: [],
 	idf_objects: [],
-	secondary_condition: null
+	secondary_condition: null,
+	rules_objects: {},
 
 }, action) => {
 	switch (action.type){
+
+		case SET_RULES_OBJECTS:
+			return {...state, rules_objects: action.objects}
 
 		case FETCH_IDF_TEMPLATES:
 			return { 
@@ -194,7 +241,8 @@ export default ( state = {
 				selected_class: null,
 				related_classes: [],
 				idf_objects: [],
-				secondary_condition: null
+				secondary_condition: null,
+				rules_objects: {},
 			}
 
 		case SET_IDF_TEMPLATES:
@@ -207,7 +255,8 @@ export default ( state = {
 				selected_class: null,
 				related_classes: [],
 				idf_objects: [],
-				secondary_condition: null
+				secondary_condition: null,
+				rules_objects: {},
 			}
 
 		case SET_TEMPLATE:
@@ -223,8 +272,10 @@ export default ( state = {
 			return { ...state, templates: state.templates.filter( template => template.id !== action.deleted ) }
 
 		case DELETE_RULE:
-			console.log("debug: action DELETE_RULE", action)
 			return {...state, rules: state.rules.filter( ({id})=>id !== action.deleted )}
+		
+		case ADD_RULE:
+			return {...state, rules: state.rules.concat([action.rule])}
 
 		case SET_IDD_CLASSES:
 			const groups = {}
@@ -243,8 +294,8 @@ export default ( state = {
 			return { ...state, related_classes: action.related_classes }
 
 
-		case SET_LIBRARY_OBJECTS:
-			return { ...state, idf_objects: action.idf_objects }
+		// case SET_LIBRARY_OBJECTS:
+		// 	return { ...state, idf_objects: action.idf_objects }
 
 		case SET_SECONDARY_CONDITION:
 			return { ...state, secondary_condition: action.secondary_condition }

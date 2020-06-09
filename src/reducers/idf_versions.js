@@ -1,4 +1,5 @@
 import api   from "../services/api"
+import { setMessage } from "./messages"
 
 const store = ()=>require("../services/store").default
 
@@ -7,12 +8,14 @@ const SET_IDF_VERSIONS   = "SET_IDF_VERSIONS"
 
 export async function fetchVersions(){
 
-	store().dispatch({type: FETCH_IDF_VERSIONS})
+	setMessage("Loading IDF Versions")
 
 	store().dispatch({
 		type: SET_IDF_VERSIONS,
 		versions: await api.getVersions()
 	})
+
+	setMessage(null)
 }
 
 export default ( state = {
