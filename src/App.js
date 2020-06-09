@@ -364,10 +364,10 @@ export default connect(
 									const idf_object = idf_objects[rule.source_object_id]
 									if(!idf_object) return <SkeletonText />
 
-									let style={}
+									let style={ display: "none"}
 								    const class_name = idf_object.class_name
-									if(rule_search_term && class_name.toLowerCase().indexOf(rule_search_term.toLowerCase()) > -1){
-										style={ display: "none" }
+									if(!rule_search_term || class_name.toLowerCase().indexOf(rule_search_term.toLowerCase()) > -1){
+										style={}
 									}
 
 									return <RuleItem 
