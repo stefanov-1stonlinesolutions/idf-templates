@@ -354,11 +354,6 @@ export default connect(
 						</Accordion>
 						<div className="rules-list">
 							{ rules
-								// .filter( rule => {
-								// 	if(!rule_search_term) return true
-								// 	const { class_name } = idf_objects[rule.source_object_id]
-								// 	return class_name.toLowerCase().indexOf(rule_search_term.toLowerCase()) > -1
-								// })
 								.sort( (a,b) => idf_objects[a.source_object_id].class_id - idf_objects[b.source_object_id].class_id )
 								.map( rule => {
 									const idf_object = idf_objects[rule.source_object_id]

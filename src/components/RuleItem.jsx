@@ -9,6 +9,8 @@ import { Dropdown, Button } from 'carbon-components-react';
 
 import {getRelatedClasses, deleteRule, createTemplateRule} from "../reducers/templates"
 
+import { setMessage } from "../reducers/messages"
+
 const Container = styled.div`
   position: relative;
   background: #FFFFFF;
@@ -319,7 +321,7 @@ export default connect(
                 [ { id: null, text: "Project"} ]
                 .concat(self_class_item)
                 .concat(ref_classes.refering.map( ({ref_class_id, referred_class}) => ({id: ref_class_id, text: referred_class}) ))
-                .concat(ref_classes.refering.map( ({ref_class_id, referred_class}) => ({id: ref_class_id, text: referred_class}) ))
+                .concat(ref_classes.refered.map( ({ref_class_id, referred_class}) => ({id: ref_class_id, text: referred_class}) ))
                 .filter( item => {
                   if(!item) return false
                   if(rule_data.class_id === item.id) selectedTriggerCondition = item
