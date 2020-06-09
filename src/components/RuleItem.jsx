@@ -172,7 +172,8 @@ export default connect(
   library: { idf_objects, objects_by_class_name, library },
   template_id,
   idf_object,
-  rule
+  rule,
+  style
 }){
     const [isOpen, setIsOpen]      = useState(false);
     const [controlsOpen, setControlsOpen] = useState(false);
@@ -277,7 +278,7 @@ export default connect(
 
 
     return (
-      <Container>
+      <Container style={style}>
         <ControlsWrapper onClick={ () => setControlsOpen(!controlsOpen) }>
           { controlsOpen && <ControlsButtonsWrapper>
             <span onClick={ ()=>deleteRule(rule.id) }>Delete</span>

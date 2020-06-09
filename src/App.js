@@ -354,20 +354,28 @@ export default connect(
 						</Accordion>
 						<div className="rules-list">
 							{ rules
-								.filter( rule => {
-									if(!rule_search_term) return true
-									const { class_name } = idf_objects[rule.source_object_id]
-									return class_name.toLowerCase().indexOf(rule_search_term.toLowerCase()) > -1
-								})
+								// .filter( rule => {
+								// 	if(!rule_search_term) return true
+								// 	const { class_name } = idf_objects[rule.source_object_id]
+								// 	return class_name.toLowerCase().indexOf(rule_search_term.toLowerCase()) > -1
+								// })
 								.sort( (a,b) => idf_objects[a.source_object_id].class_id - idf_objects[b.source_object_id].class_id )
 								.map( rule => {
-								const idf_object = idf_objects[rule.source_object_id]
-								if(!idf_object) return <SkeletonText />
-								return <RuleItem 
-									rule={rule}
-									idf_object={idf_object}
-									key={"rule-item-"+rule.id} 
-								/>
+									const idf_object = idf_objects[rule.source_object_id]
+									if(!idf_object) return <SkeletonText />
+
+									let style={}
+								    const class_name = idf_object.class_name
+									if(rule_search_term && class_name.toLowerCase().indexOf(rule_search_term.toLowerCase()) > -1){
+										style={ display: "none" }
+									}
+
+									return <RuleItem 
+										style={style}
+										rule={rule}
+										idf_object={idf_object}
+										key={"rule-item-"+rule.id} 
+									/>
 							})}
 
 						</div>
